@@ -143,7 +143,7 @@
 		status = "okay";
 	};
 
-	pxa270_opp_table: opp_table0 {
+	pxa270_opp_table: opp-table-0 {
 		compatible = "operating-points-v2";
 
 		opp-104000000 {

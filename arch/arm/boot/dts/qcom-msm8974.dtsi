@@ -1443,7 +1443,7 @@
 
 			// iommus = <&gpu_iommu 0>;
 
-			gpu_opp_table: opp_table {
+			gpu_opp_table: opp-table {
 				compatible = "operating-points-v2";
 
 				opp-320000000 {

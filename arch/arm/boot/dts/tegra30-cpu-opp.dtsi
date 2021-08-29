@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 / {
-	cpu0_opp_table: cpu_opp_table0 {
+	cpu0_opp_table: opp-table-0 {
 		compatible = "operating-points-v2";
 		opp-shared;
 
