@@ -140,7 +140,7 @@ Example 1:
 		};
 	};
 
-	cluster0_opp: opp_table0 {
+	cluster0_opp: opp-table-0 {
 		compatible = "operating-points-v2-kryo-cpu";
 		nvmem-cells = <&speedbin_efuse>;
 		opp-shared;
@@ -351,7 +351,7 @@ Example 1:
 		};
 	};
 
-	cluster1_opp: opp_table1 {
+	cluster1_opp: opp-table-1 {
 		compatible = "operating-points-v2-kryo-cpu";
 		nvmem-cells = <&speedbin_efuse>;
 		opp-shared;

@@ -62,7 +62,7 @@ Optional properties:
 Example:
 - OPP table for domain provider that provides two domains.
 
-	domain0_opp_table: opp-table0 {
+	domain0_opp_table: opp-table-0 {
 		compatible = "operating-points-v2";
 
 		domain0_opp_0: opp-1000000000 {
@@ -75,7 +75,7 @@ Example:
 		};
 	};
 
-	domain1_opp_table: opp-table1 {
+	domain1_opp_table: opp-table-1 {
 		compatible = "operating-points-v2";
 
 		domain1_opp_0: opp-1200000000 {

@@ -157,7 +157,7 @@ Following properties relate to DDR timing:
 				  the PHY side ODT strength. Default value is 60.
 
 Example:
-	dmc_opp_table: dmc_opp_table {
+	dmc_opp_table: opp-table {
 		compatible = "operating-points-v2";
 
 		opp00 {
