@@ -63,6 +63,14 @@ patternProperties:
     type: object
     $ref: /schemas/input/qcom,pm8921-pwrkey.yaml#
 
+  "gpio@[0-9a-f]+$":
+    type: object
+    $ref: "../pinctrl/qcom,pmic-gpio.yaml"
+
+  "keypad@[0-9a-f]+$":
+    type: object
+    # $ref: "../input/qcom,pm8xxx-keypad.yaml" # TODO
+
   "rtc@[0-9a-f]+$":
     type: object
     $ref: /schemas/rtc/qcom-pm8xxx-rtc.yaml#
@@ -74,6 +82,10 @@ patternProperties:
   "xoadc@[0-9a-f]+$":
     type: object
     $ref: /schemas/iio/adc/qcom,pm8018-adc.yaml#
+
+  "xoadc@[0-9a-f]+$":
+    type: object
+    $ref: "../iio/adc/qcom,pm8018-adc.yaml"
 
 required:
   - compatible
