@@ -3025,10 +3025,18 @@ static void gpiod_set_value_nocheck(struct gpio_desc *desc, int value)
  */
 void gpiod_set_value(struct gpio_desc *desc, int value)
 {
+	struct gpio_chip *gc;
+	int hwnum;
+
 	VALIDATE_DESC_VOID(desc);
 	/* Should be using gpiod_set_value_cansleep() */
 	WARN_ON(desc->gdev->chip->can_sleep);
 	gpiod_set_value_nocheck(desc, value);
+
+	gc = gpiod_to_chip(desc);
+	hwnum = gpio_chip_hwgpio(desc);
+
+	pr_debug("Value of GPIO %s (chip %s, offset %d) was set to %d\n", desc->name, gc->label, hwnum, value);
 }
 EXPORT_SYMBOL_GPL(gpiod_set_value);
 
