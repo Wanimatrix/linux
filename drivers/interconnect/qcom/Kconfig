@@ -173,5 +173,12 @@ config INTERCONNECT_QCOM_SM8450
 	  This is a driver for the Qualcomm Network-on-Chip on SM8450-based
 	  platforms.
 
+config INTERCONNECT_QCOM_APQ8064
+	tristate "Qualcomm APQ8064 interconnect driver"
+	depends on INTERCONNECT_QCOM
+	help
+	  This is a driver for the Qualcomm fabrics on APQ8064-based
+	  platforms.
+
 config INTERCONNECT_QCOM_SMD_RPM
 	tristate
