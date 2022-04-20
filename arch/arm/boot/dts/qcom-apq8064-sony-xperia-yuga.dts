@@ -98,8 +98,10 @@
 		rpm@108000 {
 			regulators {
 				vdd_l1_l2_l12_l18-supply = <&pm8921_s4>;
+				vdd_l21_l23_l29-supply = <&pm8921_s4>;
 				vdd_l24-supply = <&pm8921_s1>;
 				vdd_l25-supply = <&pm8921_s1>;
+				vdd_l26-supply = <&pm8921_s7>;
 				vdd_l27-supply = <&pm8921_s7>;
 				vdd_l28-supply = <&pm8921_s7>;
 				vdd_ncp-supply = <&pm8921_l6>;
@@ -113,6 +115,8 @@
 					regulator-min-microvolt = <1225000>;
 					regulator-max-microvolt = <1225000>;
 					qcom,switch-mode-frequency = <3200000>;
+					regulator-system-load = <100000>;
+					regulator-allow-set-load;
 					bias-pull-down;
 				};
 
@@ -128,6 +132,8 @@
 					regulator-max-microvolt = <1150000>;
 					qcom,switch-mode-frequency = <4800000>;
 					bias-pull-down;
+					regulator-system-load = <100000>;
+					regulator-allow-set-load;
 				};
 
 				s4 {
@@ -136,6 +142,8 @@
 					regulator-max-microvolt = <1800000>;
 					qcom,switch-mode-frequency = <1600000>;
 					bias-pull-down;
+					regulator-system-load = <100000>;
+					regulator-allow-set-load;
 					qcom,force-mode = <QCOM_RPM_FORCE_MODE_AUTO>;
 				};
 
@@ -143,6 +151,8 @@
 					regulator-min-microvolt = <1300000>;
 					regulator-max-microvolt = <1300000>;
 					qcom,switch-mode-frequency = <3200000>;
+					regulator-system-load = <100000>;
+					regulator-allow-set-load;
 				};
 
 				s8 {
@@ -163,12 +173,14 @@
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 					bias-pull-down;
+					regulator-allow-set-load;
 				};
 
 				l3 {
 					regulator-min-microvolt = <3075000>;
-					regulator-max-microvolt = <3075000>;
+					regulator-max-microvolt = <3300000>;
 					bias-pull-down;
+					regulator-allow-set-load;
 				};
 
 				l4 {
@@ -176,6 +188,7 @@
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					bias-pull-down;
+					regulator-allow-set-load;
 				};
 
 				l5 {
@@ -218,12 +231,18 @@
 					regulator-min-microvolt = <2850000>;
 					regulator-max-microvolt = <2850000>;
 					bias-pull-down;
+					regulator-allow-set-load;
 				};
 
 				l12 {
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 					bias-pull-down;
+				};
+
+				l13 {
+					regulator-min-microvolt = <1740000>;
+					regulator-max-microvolt = <1740000>;
 				};
 
 				l14 {
@@ -269,6 +288,7 @@
 				};
 
 				l23 {
+					regulator-always-on;
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					bias-pull-down;
@@ -277,14 +297,24 @@
 				l24 {
 					regulator-min-microvolt = <750000>;
 					regulator-max-microvolt = <1150000>;
+					regulator-system-load = <10000>;
 					bias-pull-down;
+					regulator-allow-set-load;
 				};
 
 				l25 {
 					regulator-always-on;
 					regulator-min-microvolt = <1250000>;
 					regulator-max-microvolt = <1250000>;
+					regulator-system-load = <10000>;
 					bias-pull-down;
+				};
+
+				l26 {
+					regulator-min-microvolt = <375000>;
+					regulator-max-microvolt = <1050000>;
+					bias-pull-down;
+					regulator-ramp-delay = <200>;
 				};
 
 				l27 {
@@ -302,6 +332,8 @@
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					bias-pull-down;
+					regulator-ramp-delay = <200>;
+					regulator-allow-set-load;
 				};
 
 				/* Low Voltage Switch */
