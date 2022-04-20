@@ -46,6 +46,7 @@ struct icc_node *of_icc_xlate_onecell(struct of_phandle_args *spec,
  * @provider_list: list of the registered interconnect providers
  * @nodes: internal list of the interconnect provider nodes
  * @set: pointer to device specific set operation function
+ * @commit: pointer to device specific commit operation function
  * @aggregate: pointer to device specific aggregate operation function
  * @pre_aggregate: pointer to device specific function that is called
  *		   before the aggregation begins (optional)
@@ -61,6 +62,7 @@ struct icc_provider {
 	struct list_head	provider_list;
 	struct list_head	nodes;
 	int (*set)(struct icc_node *src, struct icc_node *dst);
+	int (*commit)(struct icc_provider *provider);
 	int (*aggregate)(struct icc_node *node, u32 tag, u32 avg_bw,
 			 u32 peak_bw, u32 *agg_avg, u32 *agg_peak);
 	void (*pre_aggregate)(struct icc_node *node);

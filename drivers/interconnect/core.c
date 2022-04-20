@@ -304,6 +304,12 @@ static int apply_constraints(struct icc_path *path)
 
 		prev = next;
 	}
+
+	list_for_each_entry(p, &icc_providers, provider_list) {
+		if (p->commit) {
+			p->commit(p);
+		}
+	}
 out:
 	return ret;
 }
