@@ -736,7 +736,7 @@ int dsi_calc_clk_rate_v2(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
 	if (esc_mhz < 5)
 		return -EINVAL;
 
-	msm_host->esc_clk_rate = msm_host->byte_clk_rate / esc_div;
+	msm_host->esc_clk_rate = msm_host->byte_clk_rate / 9;//esc_div;
 
 	DBG("esc=%lu, src=%lu", msm_host->esc_clk_rate,
 		msm_host->src_clk_rate);
