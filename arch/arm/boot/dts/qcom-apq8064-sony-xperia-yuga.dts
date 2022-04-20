@@ -438,6 +438,14 @@
 			vddio-supply = <&pm8921_lvs7>;/*VDD_PLL2_1 to 7*/
 		};
 
+		hdmi-tx@4a00000 {
+			status = "disabled";
+		};
+
+		hdmi-phy@4a00400 {
+			status = "disabled";
+		};
+
 		qcom,ssbi@500000 {
 			pmic@0 {
 				gpio@150 {
