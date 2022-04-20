@@ -379,8 +379,6 @@
 
 		mdp@5100000 {
 			status = "okay";
-			// vdda-supply = <&pm8921_l2>; // FIXME this doesn't belong here
-			// vddio-supply = <&pm8921_lvs7>; // FIXME ^
 			ports {
 				port@1 {
 					mdp_dsi1_out: endpoint {
@@ -394,22 +392,22 @@
 		dsi0: dsi@4700000 {
 			status = "okay";
 			vdda-supply = <&pm8921_l2>;/*VDD_MIPI1 to 4*/
-			//vdd-supply = <&pm8921_l8>;
-			vddio-supply = <&pm8921_l29>;
 			avdd-supply = <&pm8921_l11>;
-			//vcss-supply = <&ext_3p3v>;
+			vdd-supply = <&pm8921_l8>;
+			vddio-supply = <&pm8921_l29>;
 
 			panel@0 {
 				reg = <0>;
 				compatible = "jdc,mdy70";
 
-                                //vdda-supply = <&pm8921_l2>;/*VDD_MIPI1 to 4*/
-				vddp-supply = <&pm8921_l11>;
+                                /*vdda-supply = <&pm8921_l2>;[>VDD_MIPI1 to 4<]*/
 				iovcc-supply = <&pm8921_l29>;
 
-				//enable-gpios = <&pm8921_gpio 36 GPIO_ACTIVE_HIGH>;
-				reset-gpios = <&pm8921_gpio 25 GPIO_ACTIVE_LOW>;
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_panel_pins>;
+
 				dcdc-en-gpios = <&pm8921_gpio 24 GPIO_ACTIVE_HIGH>;
+				reset-gpios = <&pm8921_gpio 25 GPIO_ACTIVE_HIGH>;
 
 				port {
 					panel_in: endpoint {
@@ -435,7 +433,7 @@
 
 		dsi-phy@4700200 {
 			status = "okay";
-			vddio-supply = <&pm8921_lvs7>;/*VDD_PLL2_1 to 7*/
+			vddio-supply = <&pm8921_l29>;/*VDD_PLL2_1 to 7*/
 		};
 
 		hdmi-tx@4a00000 {
@@ -460,6 +458,18 @@
 						qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
 						qcom,pull-up-strength = <0>;
 					};
+
+					gpio_panel_pins: gpio-panel-state {
+						pins = "gpio24", "gpio25";
+						function = "normal";
+
+						bias-disable;
+						drive-push-pull;
+						power-source = <2>;
+						qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+					};
+
+
 				};
 			};
 		};

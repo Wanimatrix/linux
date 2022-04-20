@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Author: Wouter Franken <wouter.franken@gmail.com>
+ * Author: Wouter Franken <wouter.franken@mind.be>
  *
  * From internet archives, the panel for Sony Xperia Z, 2013 model is a
  * jdc model MDY7.
@@ -21,15 +21,18 @@
 #include <drm/drm_panel.h>
 
 static const char * const regulator_names[] = {
-	"vddp",
-	"iovcc"
+	"vddio",
+	"vdda"
+	/*"vddp",*/
 };
 
 struct jdc_panel {
 	struct drm_panel base;
 	struct mipi_dsi_device *dsi;
 
-	struct regulator_bulk_data supplies[ARRAY_SIZE(regulator_names)];
+	/*struct regulator_bulk_data supplies[ARRAY_SIZE(regulator_names)];*/
+	/*struct regulator *reg_l2;*/
+	struct regulator *reg_l29;
 
 	//struct gpio_desc *enable_gpio;
 	struct gpio_desc *reset_gpio;
@@ -42,7 +45,7 @@ struct jdc_panel {
 	const struct drm_display_mode *mode;
 };
 
-static inline struct jdc_panel *to_jdi_panel(struct drm_panel *panel)
+static inline struct jdc_panel *to_jdc_panel(struct drm_panel *panel)
 {
 	return container_of(panel, struct jdc_panel, base);
 }
@@ -53,13 +56,14 @@ static int jdc_panel_init(struct jdc_panel *jdc)
 	struct device *dev = &jdc->dsi->dev;
 	int ret;
 
-	// dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+	/*dsi->mode_flags |= MIPI_DSI_MODE_LPM;*/
 
 	ret = mipi_dsi_dcs_soft_reset(dsi);
+	/*ret = mipi_dsi_generic_write(dsi, (u8[]){0x01}, 2);*/
 	if (ret < 0)
 		return ret;
 
-        msleep(5000);
+        usleep_range(10000, 20000);
 
         /*
          * TODO: Should these stay here?
@@ -91,6 +95,14 @@ static int jdc_panel_init(struct jdc_panel *jdc)
 		return ret;
 	}
 
+        /* address mode */
+	/*ret = mipi_dsi_generic_write(dsi, (u8[]){0x36, 0xC0}, 2);*/
+	/*if (ret < 0) {*/
+		/*dev_err(dev, "failed to set address mode: %d\n"*/
+			/*, ret);*/
+		/*return ret;*/
+	/*}*/
+
         /* sequencer test control */
 	ret = mipi_dsi_generic_write(dsi, (u8[]){0xD6, 0x01}, 2);
 	if (ret < 0) {
@@ -108,7 +120,7 @@ static int jdc_panel_init(struct jdc_panel *jdc)
 		return ret;
 	}
 
-	/* Interface id setting */
+	/*[> Interface id setting <]*/
 	ret = mipi_dsi_generic_write(dsi, (u8[])
 				     {0xB4, 0x0C, 0x00}, 3);
 	if (ret < 0) {
@@ -117,7 +129,7 @@ static int jdc_panel_init(struct jdc_panel *jdc)
 		return ret;
 	}
 
-	/* DSI control */
+	/*[> DSI control <]*/
 	ret = mipi_dsi_generic_write(dsi, (u8[])
 				     {0xB6, 0x3A, 0xD3}, 3);
 	if (ret < 0) {
@@ -125,6 +137,16 @@ static int jdc_panel_init(struct jdc_panel *jdc)
 			, ret);
 		return ret;
 	}
+
+        /* mcap */
+	/*ret = mipi_dsi_generic_write(dsi, (u8[]){0xB0, 0x03}, 2);*/
+	/*if (ret < 0) {*/
+		/*dev_err(dev, "failed to set mcap: %d\n"*/
+			/*, ret);*/
+		/*return ret;*/
+	/*}*/
+
+        /*usleep_range(10000, 20000);*/
 
 	return 0;
 }
@@ -135,7 +157,8 @@ static int jdc_panel_on(struct jdc_panel *jdc)
 	struct device *dev = &jdc->dsi->dev;
 	int ret;
 
-	// dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+	 /*dsi->mode_flags |= MIPI_DSI_MODE_LPM;*/
+	/*dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;*/
 
 	ret = mipi_dsi_dcs_exit_sleep_mode(dsi);
 	if (ret < 0) {
@@ -157,7 +180,8 @@ static void jdc_panel_off(struct jdc_panel *jdc)
 	struct device *dev = &jdc->dsi->dev;
 	int ret;
 
-	// dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	/*dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;*/
+	/*dsi->mode_flags |= MIPI_DSI_MODE_LPM;*/
 
 	ret = mipi_dsi_dcs_set_display_off(dsi);
 	if (ret < 0)
@@ -174,7 +198,7 @@ static void jdc_panel_off(struct jdc_panel *jdc)
 
 static int jdc_panel_disable(struct drm_panel *panel)
 {
-	struct jdc_panel *jdc = to_jdi_panel(panel);
+	struct jdc_panel *jdc = to_jdc_panel(panel);
 
 	if (!jdc->enabled)
 		return 0;
@@ -188,7 +212,7 @@ static int jdc_panel_disable(struct drm_panel *panel)
 
 static int jdc_panel_unprepare(struct drm_panel *panel)
 {
-	struct jdc_panel *jdc = to_jdi_panel(panel);
+	struct jdc_panel *jdc = to_jdc_panel(panel);
 	struct device *dev = &jdc->dsi->dev;
 	int ret;
 
@@ -197,15 +221,23 @@ static int jdc_panel_unprepare(struct drm_panel *panel)
 
 	jdc_panel_off(jdc);
 
-	gpiod_set_value(jdc->reset_gpio, 0);
+	gpiod_set_value_cansleep(jdc->reset_gpio, 0);
         usleep_range(11000, 12000);		/* Spec says > 10 ms */
 
-	gpiod_set_value(jdc->dcdc_en_gpio, 0);
-        usleep_range(25000, 26000);
+	gpiod_set_value_cansleep(jdc->dcdc_en_gpio, 0);
+	usleep_range(25000, 26000);
 
-	ret = regulator_bulk_disable(ARRAY_SIZE(jdc->supplies), jdc->supplies);
+	/*ret = regulator_disable(jdc->reg_l2);*/
+	/*if (ret < 0)*/
+		/*dev_err(dev, "regulator L2 disable failed, %d\n", ret);*/
+
+	ret = regulator_disable(jdc->reg_l29);
 	if (ret < 0)
-		dev_err(dev, "regulator disable failed, %d\n", ret);
+		dev_err(dev, "regulator L29 disable failed, %d\n", ret);
+
+	/*ret = regulator_bulk_disable(ARRAY_SIZE(jdc->supplies), jdc->supplies);*/
+	/*if (ret < 0)*/
+		/*dev_err(dev, "regulator disable failed, %d\n", ret);*/
 
 	jdc->prepared = false;
 
@@ -214,34 +246,68 @@ static int jdc_panel_unprepare(struct drm_panel *panel)
 
 static int jdc_panel_prepare(struct drm_panel *panel)
 {
-	struct jdc_panel *jdc = to_jdi_panel(panel);
+	struct jdc_panel *jdc = to_jdc_panel(panel);
 	struct device *dev = &jdc->dsi->dev;
 	int ret;
 
 	if (jdc->prepared)
 		return 0;
 
-	ret = regulator_bulk_enable(ARRAY_SIZE(jdc->supplies), jdc->supplies);
+	/*ret = regulator_bulk_enable(ARRAY_SIZE(jdc->supplies), jdc->supplies);*/
+	/*if (ret < 0) {*/
+		/*dev_err(dev, "regulator enable failed, %d\n", ret);*/
+		/*return ret;*/
+	/*}*/
+
+	ret = regulator_set_load(jdc->reg_l29, 1000);
 	if (ret < 0) {
-		dev_err(dev, "regulator enable failed, %d\n", ret);
-		return ret;
+		pr_err("%s: set_optimum_mode l29 failed, ret=%d\n",
+							__func__, ret);
+		goto poweroff;
 	}
-
-        usleep_range(25000, 26000);
-
-	gpiod_set_value(jdc->dcdc_en_gpio, 1);
-	gpiod_set_value(jdc->reset_gpio, 0);
+	ret = regulator_enable(jdc->reg_l29);		/* Enable dsi1_vddio */
+	if (ret) {
+		pr_err("%s: enable reg_l29 failed, ret=%d\n",
+							__func__, ret);
+		goto poweroff;
+	}
 	usleep_range(25000, 26000);
 
-	gpiod_set_value(jdc->reset_gpio, 1);
+	/*ret = regulator_set_load(jdc->reg_l2, 135000);*/
+	/*if (ret < 0) {*/
+		/*pr_err("%s: set_optimum_mode l2 failed, ret=%d\n",*/
+							/*__func__, ret);*/
+		/*goto poweroff;*/
+	/*}*/
+	/*ret = regulator_enable(jdc->reg_l2);		[> Enable dsi-vdda <]*/
+	/*if (ret) {*/
+		/*pr_err("%s: enable l2 failed, ret=%d\n", __func__, ret);*/
+		/*goto poweroff;*/
+	/*}*/
+
+
+
+	gpiod_set_value_cansleep(jdc->dcdc_en_gpio, 1);
+	/*gpiod_set_value_cansleep(jdc->reset_gpio, 1);*/
+	/*usleep_range(25000, 26000);*/
+
+	gpiod_set_value_cansleep(jdc->reset_gpio, 0);
+	usleep_range(25000, 26000);
+
+	gpiod_set_value_cansleep(jdc->reset_gpio, 1);
 	usleep_range(11000, 12000); // Spec says > 10 ms
+	/*gpiod_set_value_cansleep(jdc->dcdc_en_gpio, 1);*/
+	/*usleep_range(10, 20);*/
+
+	/*gpiod_set_value_cansleep(jdc->reset_gpio, 0);*/
+	/*usleep_range(10, 20);*/
 
 	ret = jdc_panel_init(jdc);
 	if (ret < 0) {
 		dev_err(dev, "failed to init panel: %d\n", ret);
 		goto poweroff;
 	}
-        msleep(120);
+        /*msleep(120);*/
 
 	ret = jdc_panel_on(jdc);
 	if (ret < 0) {
@@ -249,28 +315,37 @@ static int jdc_panel_prepare(struct drm_panel *panel)
 		goto poweroff;
 	}
 
+
 	jdc->prepared = true;
 
 	return 0;
 
 poweroff:
 
-	gpiod_set_value(jdc->reset_gpio, 0);
-        usleep_range(11000, 12000);		/* Spec says > 10 ms */
+	/*gpiod_set_value_cansleep(jdc->reset_gpio, 0);*/
+        /*usleep_range(11000, 12000);		[> Spec says > 10 ms <]*/
 
-	gpiod_set_value(jdc->dcdc_en_gpio, 0);
-        usleep_range(25000, 26000);
+	/*gpiod_set_value_cansleep(jdc->dcdc_en_gpio, 0);*/
+	/*usleep_range(25000, 26000);*/
 
-	ret = regulator_bulk_disable(ARRAY_SIZE(jdc->supplies), jdc->supplies);
+	/*ret = regulator_bulk_disable(ARRAY_SIZE(jdc->supplies), jdc->supplies);*/
+	/*if (ret < 0)*/
+		/*dev_err(dev, "regulator disable failed, %d\n", ret);*/
+
+	/*ret = regulator_disable(jdc->reg_l2);*/
+	/*if (ret < 0)*/
+		/*dev_err(dev, "regulator L2 disable failed, %d\n", ret);*/
+
+	ret = regulator_disable(jdc->reg_l29);
 	if (ret < 0)
-		dev_err(dev, "regulator disable failed, %d\n", ret);
+		dev_err(dev, "regulator L29 disable failed, %d\n", ret);
 
 	return ret;
 }
 
 static int jdc_panel_enable(struct drm_panel *panel)
 {
-	struct jdc_panel *jdc = to_jdi_panel(panel);
+	struct jdc_panel *jdc = to_jdc_panel(panel);
 
 	if (jdc->enabled)
 		return 0;
@@ -283,7 +358,7 @@ static int jdc_panel_enable(struct drm_panel *panel)
 }
 
 static const struct drm_display_mode default_mode = {
-		.clock = 149730,
+		.clock = 149730,//898000,//149730,
 		.hdisplay = 1080,
 		.hsync_start = 1080 + 129,
 		.hsync_end = 1080 + 129 + 5,
@@ -300,7 +375,7 @@ static int jdc_panel_get_modes(struct drm_panel *panel,
 			       struct drm_connector *connector)
 {
 	struct drm_display_mode *mode;
-	struct jdc_panel *jdc = to_jdi_panel(panel);
+	struct jdc_panel *jdc = to_jdc_panel(panel);
 	struct device *dev = &jdc->dsi->dev;
 
 	mode = drm_mode_duplicate(connector->dev, &default_mode);
@@ -317,6 +392,7 @@ static int jdc_panel_get_modes(struct drm_panel *panel,
 
 	connector->display_info.width_mm = 62;
 	connector->display_info.height_mm = 110;
+	connector->display_info.bpc = 8;
 
 	return 1;
 }
@@ -398,15 +474,27 @@ static int jdc_panel_add(struct jdc_panel *jdc)
 
 	jdc->mode = &default_mode;
 
-	for (i = 0; i < ARRAY_SIZE(jdc->supplies); i++)
-		jdc->supplies[i].supply = regulator_names[i];
+	/*for (i = 0; i < ARRAY_SIZE(jdc->supplies); i++)*/
+		/*jdc->supplies[i].supply = regulator_names[i];*/
 
-	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(jdc->supplies),
-				      jdc->supplies);
-	if (ret < 0) {
-		dev_err(dev, "failed to init regulator, ret=%d\n", ret);
+	/*ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(jdc->supplies),*/
+				      /*jdc->supplies);*/
+	/*if (ret < 0) {*/
+		/*dev_err(dev, "failed to init regulator, ret=%d\n", ret);*/
+		/*return ret;*/
+	/*}*/
+
+	jdc->reg_l29 = devm_regulator_get(dev, "iovcc");
+	if (jdc->reg_l29 < 0) {
+		dev_err(dev, "failed to init regulator L29, ret=%d\n", ret);
 		return ret;
 	}
+
+	/*jdc->reg_l2 = devm_regulator_get(dev, "vdda");*/
+	/*if (jdc->reg_l2 < 0) {*/
+		/*dev_err(dev, "failed to init regulator L2, ret=%d\n", ret);*/
+		/*return ret;*/
+	/*}*/
 
         /*
 	jdc->enable_gpio = devm_gpiod_get(dev, "enable", GPIOD_OUT_LOW);
@@ -417,19 +505,23 @@ static int jdc_panel_add(struct jdc_panel *jdc)
 	}
         */
 
-	jdc->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+	dev_warn(dev, "Getting reset-gpios\n");
+	jdc->reset_gpio = gpiod_get(dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(jdc->reset_gpio)) {
 		ret = PTR_ERR(jdc->reset_gpio);
 		dev_err(dev, "cannot get reset-gpios %d\n", ret);
 		return ret;
 	}
 
-	jdc->dcdc_en_gpio = devm_gpiod_get(dev, "dcdc-en", GPIOD_OUT_LOW);
+	jdc->dcdc_en_gpio = gpiod_get(dev, "dcdc-en", GPIOD_OUT_LOW);
 	if (IS_ERR(jdc->dcdc_en_gpio)) {
 		ret = PTR_ERR(jdc->dcdc_en_gpio);
 		dev_err(dev, "cannot get dcdc-en-gpio %d\n", ret);
 		return ret;
 	}
+	/*const char *en_gpio_name = jdc->dcdc_en_gpio->name;*/
+	/*unsigned long en_gpio_flgs = jdc->dcdc_en_gpio->flags;*/
+	/*dev_warn(dev, "Got gpio: %s. Flags: 0x%lx\n", en_gpio_name, en_gpio_flgs);*/
 
         /*
 	jdc->backlight = drm_panel_create_dsi_backlight(jdc->dsi);
@@ -459,10 +551,10 @@ static int jdc_panel_probe(struct mipi_dsi_device *dsi)
 	struct jdc_panel *jdc;
 	int ret;
 
+	dsi->channel = 0;
 	dsi->lanes = 4;
 	dsi->format = MIPI_DSI_FMT_RGB888;
-	dsi->mode_flags =  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_VIDEO |
-			   MIPI_DSI_CLOCK_NON_CONTINUOUS;
+	dsi->mode_flags =  MIPI_DSI_MODE_VIDEO_HSE | MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_LPM | MIPI_DSI_CLOCK_NON_CONTINUOUS;
 
 	jdc = devm_kzalloc(&dsi->dev, sizeof(*jdc), GFP_KERNEL);
 	if (!jdc)
@@ -476,7 +568,13 @@ static int jdc_panel_probe(struct mipi_dsi_device *dsi)
 	if (ret < 0)
 		return ret;
 
-	return mipi_dsi_attach(dsi);
+	ret = mipi_dsi_attach(dsi);
+	if (ret < 0) {
+		jdc_panel_del(jdc);
+		return ret;
+	}
+
+	return 0;
 }
 
 static int jdc_panel_remove(struct mipi_dsi_device *dsi)
@@ -516,6 +614,6 @@ static struct mipi_dsi_driver jdc_panel_driver = {
 };
 module_mipi_dsi_driver(jdc_panel_driver);
 
-MODULE_AUTHOR("Wouter Franken <wouter.franken@gmail.com>");
+MODULE_AUTHOR("Wouter Franken <wouter.franken@mind.be>");
 MODULE_DESCRIPTION("JDC MDY70 FWVGA");
 MODULE_LICENSE("GPL v2");
