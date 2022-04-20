@@ -1272,7 +1272,7 @@ static int dsi_cmd_dma_tx(struct msm_dsi_host *msm_host, int len)
 						msm_host->id, dma_base, len);
 	if (triggered) {
 		ret = wait_for_completion_timeout(&msm_host->dma_comp,
-					msecs_to_jiffies(200));
+					msecs_to_jiffies(1200));
 		DBG("ret=%d", ret);
 		if (ret == 0)
 			ret = -ETIMEDOUT;
