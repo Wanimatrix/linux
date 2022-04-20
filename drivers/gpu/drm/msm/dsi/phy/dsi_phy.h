@@ -13,7 +13,7 @@
 #include "dsi.h"
 
 #define dsi_phy_read(offset) msm_readl((offset))
-#define dsi_phy_write(offset, data) msm_writel((data), (offset))
+#define dsi_phy_write(offset, data) { pr_warn("%s: Writing 0x%x to 0x%x", __func__, data, (offset - base)) ; msm_writel((data), (offset)); }
 #define dsi_phy_write_udelay(offset, data, delay_us) { msm_writel((data), (offset)); udelay(delay_us); }
 #define dsi_phy_write_ndelay(offset, data, delay_ns) { msm_writel((data), (offset)); ndelay(delay_ns); }
 

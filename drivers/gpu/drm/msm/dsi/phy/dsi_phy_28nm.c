@@ -429,6 +429,7 @@ static int dsi_pll_28nm_vco_prepare_lp(struct clk_hw *hw)
 static void dsi_pll_28nm_vco_unprepare(struct clk_hw *hw)
 {
 	struct dsi_pll_28nm *pll_28nm = to_pll_28nm(hw);
+	void __iomem *base = pll_28nm->phy->pll_base;
 
 	DBG("id=%d", pll_28nm->phy->id);
 
@@ -681,16 +682,18 @@ static void dsi_28nm_phy_regulator_enable_ldo(struct msm_dsi_phy *phy)
 	dsi_phy_write(base + REG_DSI_28nm_PHY_REGULATOR_CTRL_1, 0x1);
 	dsi_phy_write(base + REG_DSI_28nm_PHY_REGULATOR_CTRL_4, 0x20);
 
-	if (phy->cfg->quirks & DSI_PHY_28NM_QUIRK_PHY_LP)
+	if (phy->cfg->quirks & DSI_PHY_28NM_QUIRK_PHY_LP) {
 		dsi_phy_write(phy->base + REG_DSI_28nm_PHY_LDO_CNTRL, 0x05);
-	else
+	} else {
 		dsi_phy_write(phy->base + REG_DSI_28nm_PHY_LDO_CNTRL, 0x0d);
+	}
 }
 
 static void dsi_28nm_phy_regulator_ctrl(struct msm_dsi_phy *phy, bool enable)
 {
+	void __iomem *base = phy->reg_base;
 	if (!enable) {
-		dsi_phy_write(phy->reg_base +
+		dsi_phy_write(base +
 			      REG_DSI_28nm_PHY_REGULATOR_CAL_PWR_CFG, 0);
 		return;
 	}
@@ -759,7 +762,8 @@ static int dsi_28nm_phy_enable(struct msm_dsi_phy *phy,
 
 static void dsi_28nm_phy_disable(struct msm_dsi_phy *phy)
 {
-	dsi_phy_write(phy->base + REG_DSI_28nm_PHY_CTRL_0, 0);
+	void __iomem *base = phy->base;
+	dsi_phy_write(base + REG_DSI_28nm_PHY_CTRL_0, 0);
 	dsi_28nm_phy_regulator_ctrl(phy, false);
 
 	/*

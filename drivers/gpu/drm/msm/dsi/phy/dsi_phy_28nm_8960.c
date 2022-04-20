@@ -224,6 +224,7 @@ static int dsi_pll_28nm_vco_prepare(struct clk_hw *hw)
 static void dsi_pll_28nm_vco_unprepare(struct clk_hw *hw)
 {
 	struct dsi_pll_28nm *pll_28nm = to_pll_28nm(hw);
+	void __iomem *base = pll_28nm->phy->pll_base;
 
 	DBG("id=%d", pll_28nm->phy->id);
 
@@ -317,6 +318,7 @@ static long clk_bytediv_round_rate(struct clk_hw *hw, unsigned long rate,
 static int clk_bytediv_set_rate(struct clk_hw *hw, unsigned long rate,
 				unsigned long parent_rate)
 {
+	void __iomem *base = 0x0;
 	struct clk_bytediv *bytediv = to_clk_bytediv(hw);
 	u32 val;
 	unsigned int factor;
@@ -488,6 +490,19 @@ static void dsi_28nm_dphy_set_timing(struct msm_dsi_phy *phy,
 {
 	void __iomem *base = phy->base;
 
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_0, 0xe6);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_1, 0x38);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_2, 0x27);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_3, 0x0);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_4, 0x69);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_5, 0x72);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_6, 0x2b);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_7, 0x3c);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_8, 0x41);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_9, 0x03);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_10, 0x04);*/
+	/*dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_11, 0xa0);*/
+
 	dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_0,
 		DSI_28nm_8960_PHY_TIMING_CTRL_0_CLK_ZERO(timing->clk_zero));
 	dsi_phy_write(base + REG_DSI_28nm_8960_PHY_TIMING_CTRL_1,
@@ -574,7 +589,7 @@ static void dsi_28nm_phy_lane_config(struct msm_dsi_phy *phy)
 
 	for (i = 0; i < 4; i++) {
 		dsi_phy_write(base + REG_DSI_28nm_8960_PHY_LN_CFG_0(i), 0x80);
-		dsi_phy_write(base + REG_DSI_28nm_8960_PHY_LN_CFG_1(i), 0x45);
+		dsi_phy_write(base + REG_DSI_28nm_8960_PHY_LN_CFG_1(i), 0xEF);
 		dsi_phy_write(base + REG_DSI_28nm_8960_PHY_LN_CFG_2(i), 0x00);
 		dsi_phy_write(base + REG_DSI_28nm_8960_PHY_LN_TEST_DATAPATH(i),
 			0x00);
@@ -639,7 +654,8 @@ static int dsi_28nm_phy_enable(struct msm_dsi_phy *phy,
 
 static void dsi_28nm_phy_disable(struct msm_dsi_phy *phy)
 {
-	dsi_phy_write(phy->base + REG_DSI_28nm_8960_PHY_CTRL_0, 0x0);
+	void __iomem *base = phy->base;
+	dsi_phy_write(base + REG_DSI_28nm_8960_PHY_CTRL_0, 0x0);
 
 	/*
 	 * Wait for the registers writes to complete in order to
