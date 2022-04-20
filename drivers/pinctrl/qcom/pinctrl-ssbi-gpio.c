@@ -326,21 +326,25 @@ static int pm8xxx_pin_config_set(struct pinctrl_dev *pctldev,
 	for (i = 0; i < num_configs; i++) {
 		param = pinconf_to_config_param(configs[i]);
 		arg = pinconf_to_config_argument(configs[i]);
+		dev_err(pctrl->dev, "PM8921 GPIO Cfg %d\n", i);
 
 		switch (param) {
 		case PIN_CONFIG_BIAS_DISABLE:
+			dev_err(pctrl->dev, "Asking to set bias of gpio%d to DIS\n", offset);
 			pin->bias = PM8XXX_GPIO_BIAS_NP;
 			banks |= BIT(2);
 			pin->disable = 0;
 			banks |= BIT(3);
 			break;
 		case PIN_CONFIG_BIAS_PULL_DOWN:
+			dev_err(pctrl->dev, "Asking to set bias of gpio%d to PD\n", offset);
 			pin->bias = PM8XXX_GPIO_BIAS_PD;
 			banks |= BIT(2);
 			pin->disable = 0;
 			banks |= BIT(3);
 			break;
 		case PM8XXX_QCOM_PULL_UP_STRENGTH:
+			dev_err(pctrl->dev, "Asking to set bias of gpio%d to PUS\n", offset);
 			if (arg > PM8XXX_GPIO_BIAS_PU_1P5_30) {
 				dev_err(pctrl->dev, "invalid pull-up strength\n");
 				return -EINVAL;
@@ -348,12 +352,14 @@ static int pm8xxx_pin_config_set(struct pinctrl_dev *pctldev,
 			pin->pull_up_strength = arg;
 			fallthrough;
 		case PIN_CONFIG_BIAS_PULL_UP:
+			dev_err(pctrl->dev, "Asking to set bias of gpio%d to PU\n", offset);
 			pin->bias = pin->pull_up_strength;
 			banks |= BIT(2);
 			pin->disable = 0;
 			banks |= BIT(3);
 			break;
 		case PIN_CONFIG_BIAS_HIGH_IMPEDANCE:
+			dev_err(pctrl->dev, "Asking to set bias of gpio%d to HI\n", offset);
 			pin->disable = 1;
 			banks |= BIT(3);
 			break;
@@ -409,6 +415,7 @@ static int pm8xxx_pin_config_set(struct pinctrl_dev *pctldev,
 
 	if (banks & BIT(2)) {
 		val = pin->bias << 1;
+		dev_err(pctrl->dev, "Setting bias of gpio%d to 0x%x\n", offset, pin->bias);
 		pm8xxx_write_bank(pctrl, pin, 2, val);
 	}
 
@@ -595,6 +602,8 @@ static const struct gpio_chip pm8xxx_gpio_template = {
 	.direction_output = pm8xxx_gpio_direction_output,
 	.get = pm8xxx_gpio_get,
 	.set = pm8xxx_gpio_set,
+	.request = gpiochip_generic_request,
+	.free = gpiochip_generic_free,
 	.of_xlate = pm8xxx_gpio_of_xlate,
 	.dbg_show = pm8xxx_gpio_dbg_show,
 	.owner = THIS_MODULE,

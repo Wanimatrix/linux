@@ -1534,6 +1534,8 @@ int usb_gadget_probe_driver(struct usb_gadget_driver *driver)
 	if (!driver || !driver->bind || !driver->setup)
 		return -EINVAL;
 
+	pr_warn("Probing for driver %s with function %s\n", driver->udc_name, driver->function);
+
 	mutex_lock(&udc_lock);
 	if (driver->udc_name) {
 		list_for_each_entry(udc, &udc_list, list) {
@@ -1543,9 +1545,10 @@ int usb_gadget_probe_driver(struct usb_gadget_driver *driver)
 		}
 		if (ret)
 			ret = -ENODEV;
-		else if (udc->driver)
+		else if (udc->driver) {
+			pr_warn("UDC %s is already busy with function %s\n", udc->driver->udc_name, udc->driver->function);
 			ret = -EBUSY;
-		else
+		} else
 			goto found;
 	} else {
 		list_for_each_entry(udc, &udc_list, list) {
