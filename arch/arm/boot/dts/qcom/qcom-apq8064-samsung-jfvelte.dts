@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
-#include "qcom-apq8064-v2.0.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+
+#include "qcom-apq8064-v2.0.dtsi"
+#include "pm8821.dtsi"
+#include "pm8921.dtsi"
 / {
 	model = "Samsung Galaxy S4 Value Edition";
 	compatible = "samsung,jfvelte", "qcom,apq8064";
@@ -49,7 +52,7 @@
 				vdd_ncp-supply = <&pm8921_l6>;
 
 				/* Buck SMPS */
-				s1 {
+				pm8921_s1: s1 {
 					regulator-always-on;
 					regulator-min-microvolt = <1300000>;
 					regulator-max-microvolt = <1300000>;
@@ -58,7 +61,7 @@
 				};
 
 				/* wcnss_wlan.0-iris_vddrfa */
-				s2 {
+				pm8921_s2: s2 {
 					regulator-min-microvolt = <1300000>;
 					regulator-max-microvolt = <1300000>;
 					qcom,switch-mode-frequency = <1600000>;
@@ -68,7 +71,7 @@
 				 * msm otg HSUSB_VDDCX
 				 * wcnss_wlan.0-riva_vddcx
 				 */
-				s3 {
+				pm8921_s3: s3 {
 					regulator-min-microvolt = <500000>;
 					regulator-max-microvolt = <1150000>;
 					qcom,switch-mode-frequency = <4800000>;
@@ -82,34 +85,34 @@
 				 * tabla2x-slim-VDDIO_CDC
 				 * wcnss_wlan.0-riva_vddpx
 				 */
-				s4 {
+				pm8921_s4: s4 {
 					regulator-min-microvolt	= <1800000>;
 					regulator-max-microvolt	= <1800000>;
 					qcom,switch-mode-frequency = <3200000>;
 					regulator-always-on;
 				};
 
-				s7 {
+				pm8921_s7: s7 {
 					regulator-min-microvolt = <1300000>;
 					regulator-max-microvolt = <1300000>;
 					qcom,switch-mode-frequency = <3200000>;
 				};
 
-				s8 {
+				pm8921_s8: s8 {
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 					qcom,switch-mode-frequency = <1600000>;
 				};
 
 				/* mipi_dsi.1-dsi1_pll_vdda */
-				l2 {
+				pm8921_l2: l2 {
 					regulator-min-microvolt = <1200000>;
 					regulator-max-microvolt = <1200000>;
 					regulator-always-on;
 				};
 
 				/* msm_otg-HSUSB_3p3 */
-				l3 {
+				pm8921_l3: l3 {
 					regulator-min-microvolt = <3075000>;
 					regulator-max-microvolt = <3075000>;
 					bias-pull-down;
@@ -119,33 +122,35 @@
 				 * msm_otg-HSUSB_1p8
 				 * wcnss_wlan.0-iris_vddxo
 				 */
-				l4 {
+				pm8921_l4: l4 {
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					bias-pull-down;
 				};
 
 				/* msm_sdcc.1-sdc_vdd */
-				l5 {
+				pm8921_l5: l5 {
 					regulator-min-microvolt = <2950000>;
 					regulator-max-microvolt = <2950000>;
 					regulator-always-on;
 					bias-pull-down;
 				};
 
-				l6 {
+				pm8921_l6: l6 {
 					regulator-min-microvolt = <2950000>;
 					regulator-max-microvolt = <2950000>;
 				};
 
+				pm8921_l8: l8 {};
+
 				/* wcnss_wlan.0-iris_vddpa */
-				l10 {
+				pm8921_l10: l10 {
 					regulator-min-microvolt = <2900000>;
 					regulator-max-microvolt = <3300000>;
 				};
 
 				/* mipi_dsi.1-dsi1_avdd */
-				l11 {
+				pm8921_l11: l11 {
 					regulator-min-microvolt = <3300000>;
 					regulator-max-microvolt = <3300000>;
 					bias-pull-down;
@@ -153,21 +158,21 @@
 				};
 
 				/* pwm_power for backlight */
-				l17 {
+				pm8921_l17: l17 {
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					regulator-always-on;
 				};
 
 				/* camera, qdsp6 */
-				l23 {
+				pm8921_l23: l23 {
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					bias-pull-down;
 				};
 
 				/* wcnss_wlan.0-riva_vddmx */
-				l24 {
+				pm8921_l24: l24 {
 					regulator-min-microvolt = <750000>;
 					regulator-max-microvolt = <1150000>;
 				};
@@ -176,42 +181,42 @@
 				 * tabla2x-slim-CDC_VDDA_A_1P2V
 				 * tabla2x-slim-VDDD_CDC_D
 				 */
-				l25 {
+				pm8921_l25: l25 {
 					regulator-min-microvolt = <1250000>;
 					regulator-max-microvolt = <1250000>;
 					bias-pull-down;
 				};
 
 				/* wcnss_wlan.0-iris_vddio */
-				lvs1 {
+				pm8921_lvs1: lvs1 {
 					bias-pull-down;
 				};
 
 				/* wcnss_wlan.0-iris_vdddig */
-				lvs2 {
+				pm8921_lvs2: lvs2 {
 				};
 
-				lvs4 {
+				pm8921_lvs4: lvs4 {
 					bias-pull-down;
 				};
 
-				lvs5 {
+				pm8921_lvs5: lvs5 {
 					bias-pull-down;
 				};
 
-				lvs6 {
+				pm8921_lvs6: lvs6 {
 					bias-pull-down;
 				};
 				/*
 				 * mipi_dsi.1-dsi1_vddio
 				 * pil_riva-pll_vdd
 				 */
-				lvs7 {
+				pm8921_lvs7: lvs7 {
 					bias-pull-down;
 					regulator-always-on;
 				};
 
-				ncp {
+				pm8921_ncp: ncp {
 					regulator-min-microvolt = <1800000>;
 					regulator-max-microvolt = <1800000>;
 					qcom,switch-mode-frequency = <1600000>;
